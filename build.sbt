@@ -7,7 +7,7 @@ val scala3   = "3.2.0"
 val allScala = Seq(scala212, scala213, scala3)
 
 val akkaVersion               = "2.6.20"
-val catsEffect3Version        = "3.3.14"
+val catsEffect3Version        = "3.4.1"
 val catsMtlVersion            = "1.2.1"
 val circeVersion              = "0.14.3"
 val http4sVersion             = "0.23.12"
@@ -18,7 +18,7 @@ val playVersion               = "2.8.18"
 val playJsonVersion           = "2.9.3"
 val scalafmtVersion           = "3.5.9"
 val sttpVersion               = "3.8.0"
-val tapirVersion              = "1.1.0"
+val tapirVersion              = "1.2.2"
 val zioVersion                = "2.0.2"
 val zioInteropCats2Version    = "22.0.0.0"
 val zioInteropCats3Version    = "3.3.0"
@@ -163,7 +163,7 @@ lazy val tools = project
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "org.scalameta"                  % "scalafmt-interfaces"           % scalafmtVersion,
-      "io.get-coursier"                % "interface"                     % "1.0.10",
+      "io.get-coursier"                % "interface"                     % "1.0.11",
       "com.softwaremill.sttp.client3" %% "zio"                           % sttpVersion,
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpVersion,
       "dev.zio"                       %% "zio-config"                    % zioConfigVersion,
@@ -361,7 +361,7 @@ lazy val clientJS  = client.js
     libraryDependencies ++= {
       Seq(
         "org.scala-js"      %%% "scalajs-java-securerandom" % "1.0.0" cross CrossVersion.for3Use2_13,
-        "io.github.cquiroz" %%% "scala-java-time"           % "2.4.0" % Test
+        "io.github.cquiroz" %%% "scala-java-time"           % "2.5.0" % Test
       )
     }
   )
@@ -452,10 +452,9 @@ lazy val benchmarks = project
   .dependsOn(core)
   .enablePlugins(JmhPlugin)
   .settings(
-    crossScalaVersions -= scala3,
     libraryDependencies ++= Seq(
-      "org.sangria-graphql" %% "sangria"       % "2.1.3",
-      "org.sangria-graphql" %% "sangria-circe" % "1.3.0"
+      "org.sangria-graphql" %% "sangria"       % "3.4.1",
+      "org.sangria-graphql" %% "sangria-circe" % "1.3.2"
     )
   )
 
