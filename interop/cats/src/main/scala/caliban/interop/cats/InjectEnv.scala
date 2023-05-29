@@ -1,7 +1,11 @@
 package caliban.interop.cats
 
-import cats.Applicative
+import cats.{ Applicative, Functor }
 import cats.data.{ EitherT, Kleisli, OptionT }
+import cats.effect.unsafe.IORuntime
+import cats.effect.{ IO, IOLocal }
+import zio.prelude.classic.FlatMap
+import zio.{ Runtime, Tag, Trace, Unsafe, ZIO }
 
 /**
  * Injects a given environment of type `R` into the effect `F`.
@@ -29,6 +33,13 @@ type Eff[A] = Kleisli[IO, Security, A]
 implicit val injectSecurity: InjectEnv[Eff, Context] =
   InjectEnv.kleisliLens(_.security, (ctx, security) => ctx.copy(security = security))
 
+3) IO: injects given environment into the underlying IOLocal. Requires an implicit IOLocal[R]:
+
+case class Context(isAdmin: Boolean)
+
+implicit val local: IOLocal[Context] = IOLocal(Context(isAdmin = false)).unsafeRunSync()
+
+implicit val injectContext: InjectEnv[IO, Context] = InjectEnv.forIO(Context(isAdmin = false))
 """)
 trait InjectEnv[F[_], R] {
 
@@ -113,4 +124,16 @@ object InjectEnv {
       def modify(env: R): EitherT[F, E, R] =
         EitherT.pure[F, E](env)
     }
+
+  def forIO[R](implicit local: IOLocal[R]): InjectEnv[IO, R] =
+    new InjectEnv[IO, R] {
+      def inject[A](fa: IO[A], env: R): IO[A] =
+        local.set(env) *> fa
+
+      def modify(env: R): IO[R] =
+        local.get
+    }
+
+  implicit def injectEnvForIO[R: Tag](implicit zioRt: zio.Runtime[R], ceRt: IORuntime): InjectEnv[IO, R] =
+    forIO(IOLocal(zioRt.environment.get[R]).unsafeRunSync())
 }
