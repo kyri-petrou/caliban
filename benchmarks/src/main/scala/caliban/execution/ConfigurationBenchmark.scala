@@ -14,8 +14,6 @@ import java.util.concurrent.TimeUnit
 @Fork(1)
 class ConfigurationBenchmark {
 
-  private val runtime = Runtime.default
-
   trait S1
   trait S2
   trait S3
@@ -28,10 +26,10 @@ class ConfigurationBenchmark {
   trait S10
 
   type Env = S1 with S2 with S3 with S4 with S5 with S6 with S7 with S8 with S9 with S10
-  private val runtime2 =
+  private val runtime =
     Unsafe.unsafe(implicit u => Runtime.unsafe.fromLayer[Env](ZLayer.succeed(S())))
 
-  def run[A](zio: RIO[Env, A]): A = Unsafe.unsafe(implicit u => runtime2.unsafe.run(zio).getOrThrow())
+  def run[A](zio: RIO[Env, A]): A = Unsafe.unsafe(implicit u => runtime.unsafe.run(zio).getOrThrow())
 
   import NestedZQueryBenchmarkSchema._
 
